@@ -11,10 +11,16 @@ find_package(Qt5 COMPONENTS
         Core
         REQUIRED)
 
-add_executable(DocoleChat main.cpp)
+add_executable(DocoleChat)
+
+
+set(sources 
+    src/main.cpp)
 target_link_libraries(DocoleChat
         Qt5::Core
         )
+target_sources(DocoleChat PRIVATE ${sources})
+
 #[[
 if (WIN32)
     set(DEBUG_SUFFIX)

@@ -31,7 +31,17 @@
 *.out
 *.app
 
+# Visual Studio and VS Code 
+.vs
+.vscode
+*.sln
+*.vcxproj
+*.vcproj
+
 .idea
+cmake-build*/
+
+# cmake generated files
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -43,5 +53,4 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
-cmake-build*/
 build/
