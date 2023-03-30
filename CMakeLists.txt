@@ -10,15 +10,17 @@ message(STATUS ${CMAKE_COMMAND})
 
 find_package(Qt5 COMPONENTS
         Core
+        Widgets
         REQUIRED)
 
-add_executable(DocoleChat)
+add_executable(DocoleChat src/mainwindow.cpp src/mainwindow.h src/mainwindow.ui)
+
+file(GLOB sources src/*.* )
 
 
-set(sources 
-    src/main.cpp)
 target_link_libraries(DocoleChat
         Qt5::Core
+        Qt5::Widgets
         )
 target_sources(DocoleChat PRIVATE ${sources})
 
