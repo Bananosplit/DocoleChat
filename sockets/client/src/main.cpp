@@ -3,6 +3,8 @@
 #include <iostream>
 #include <QCoreApplication>
 #include <QTimer>
+#include <string>
+std::string ip_addr;
 
 int func() {
 	while (true) {
@@ -10,7 +12,7 @@ int func() {
 		std::cout << "Enter message" << std::endl;
 		std::cin >> message;
 		QTcpSocket socket;
-		socket.connectToHost(QHostAddress("127.0.0.1"), 7000);
+		socket.connectToHost(QHostAddress(ip_addr.c_str()), 7000);
 		socket.waitForConnected();
 		socket.write(message.c_str());
 		socket.waitForBytesWritten();
@@ -20,6 +22,8 @@ int func() {
 
 
 int main(int argc, char *argv[]){
+	std::cout << "Enter ip: ";
+	std::cin >> ip_addr;
 	QCoreApplication app(argc, argv);
 	QTimer::singleShot(100, func);
 	return app.exec();
