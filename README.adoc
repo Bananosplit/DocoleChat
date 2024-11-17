@@ -1,8 +1,11 @@
 = DocoleChat
-:author: Banasplit, tenglor
+:author: Bananosplit, tenglor
+:status:
+:note-caption: :paperclip:
 
-NOTE: Super top client server app for my gang it is will be history
+Super top client server app for my gang it is will be history
 
+NOTE: It's very cool, but not
 
 * [x] - start doing
 * [ ] - descibe protocol
