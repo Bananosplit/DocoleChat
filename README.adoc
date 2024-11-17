@@ -1,0 +1,11 @@
+= DocoleChat
+:author: Banasplit, tenglor
+
+NOTE: Super top client server app for my gang it is will be history
+
+
+* [x] - start doing
+* [ ] - descibe protocol
+* [ ] - do server
+* [ ] - do client
+
