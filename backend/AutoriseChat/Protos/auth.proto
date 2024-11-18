@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option csharp_namespace = "AutoriseChat";
+
+package auth;
+
+// The greeting service definition.
+service ChatAuth {
+  // Sends a greeting
+  rpc Create (CreateRequest) returns (CreateResponce);
+}
+
+// The request message containing the user's name.
+message CreateRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+  string password_confirm = 4;
+  string name = 5;
+}
+
+// The response message containing the greetings.
+message CreateResponce {
+  int64 id = 1;
+}
