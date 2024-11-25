@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>8e3c822d-1940-4074-83da-95fd6ff137bb</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.64.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
   </ItemGroup>
 
 </Project>
