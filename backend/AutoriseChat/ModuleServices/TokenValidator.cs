@@ -7,11 +7,11 @@ namespace AutoriseChat.ModuleServices
 {
     public class TokenValidator
     {
-        private readonly IConfiguration _config;
+        private readonly IConfiguration config;
 
         public TokenValidator(IConfiguration config)
         {
-            _config = config;
+            this.config = config;
         }
 
         public string GenerateToken(LoginModel login)
@@ -24,12 +24,12 @@ namespace AutoriseChat.ModuleServices
                 new Claim(ClaimTypes.Role, "User")
                 };
 
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"] ?? throw new ArgumentException("Jwt key must be loaded")));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
                 var token = new JwtSecurityToken(
-                    issuer: _config["Jwt:Issuer"],
-                    audience: _config["Jwt:Audience"],
+                    issuer: config["Jwt:Issuer"],
+                    audience: config["Jwt:Audience"],
                     claims: claims,
                     expires: DateTime.Now.AddMinutes(30),
                     signingCredentials: creds);

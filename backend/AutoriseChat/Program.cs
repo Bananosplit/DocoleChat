@@ -1,4 +1,5 @@
 using System.Text;
+using AutoriseChat.ModuleServices;
 using AutoriseChat.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -34,8 +35,9 @@ internal class Program
                     )
             };
         });
+        builder.Services.AddSingleton<TokenValidator>();
         
-        builder.Services.AddAuthentication();
+        builder.Services.AddAuthorization();
         builder.Services.AddGrpc();
 
         var app = builder.Build();
@@ -43,7 +45,7 @@ internal class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGrpcService<GreeterService>();
+        app.MapGrpcService<AuthService>();
         app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 
         app.Run();
