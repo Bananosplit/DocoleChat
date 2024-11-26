@@ -8,7 +8,8 @@ set(CMAKE_AUTOUIC ON)
 
 message(STATUS ${CMAKE_COMMAND})
 
-find_package(Qt5 COMPONENTS
+set(QT Qt6)
+find_package(${QT} COMPONENTS
         Core
         Widgets
         REQUIRED)
@@ -26,8 +27,8 @@ set(sources
 )
 
 target_link_libraries(DocoleChat
-        Qt5::Core
-        Qt5::Widgets
+        ${QT}::Core
+        ${QT}::Widgets
         gRPC::grpc
         gRPC::grpc++
         )
@@ -60,7 +61,7 @@ if (WIN32)
     foreach (QT_LIB Core)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy
-                "${QT_INSTALL_PATH}/bin/Qt5${QT_LIB}${DEBUG_SUFFIX}.dll"
+                "${QT_INSTALL_PATH}/bin/${QT}${QT_LIB}${DEBUG_SUFFIX}.dll"
                 "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
     endforeach (QT_LIB)
 endif ()]]

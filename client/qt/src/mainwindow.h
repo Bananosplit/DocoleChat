@@ -20,8 +20,13 @@ public:
 
     ~MainWindow() override;
 
+
+
+
 private:
     Ui::MainWindow *ui;
+private slots:
+    void return_pressed();
 };
 
 
