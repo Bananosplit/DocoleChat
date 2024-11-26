@@ -1,0 +1,11 @@
+= Desktop Client
+
+== Roadmap
+
+ - [ ] Main menu
+ - [ ] Authorization
+ - [ ] Chat Window
+ 	- [ ] Align
+ 	- [ ] Styles
+ 	- [ ] Message boxes
+ - [ ] List of chat
