@@ -14,27 +14,48 @@ find_package(${QT} COMPONENTS
         Widgets
         REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
+find_package(protobuf CONFIG REQUIRED)
 
 add_executable(DocoleChat )
 
 set(sources
+    src/ircclient.h
+    src/ircclient.cpp
     src/main.cpp
     src/mainwindow.cpp
     src/mainwindow.h
     src/mainwindow.ui
     src/message.h
     src/message.cpp
+    ../../proto/irc.proto
+    ${CMAKE_CURRENT_BINARY_DIR}/irc.pb.cc
+    ${CMAKE_CURRENT_BINARY_DIR}/irc.pb.h
 )
 
+target_include_directories(DocoleChat PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(DocoleChat
         ${QT}::Core
         ${QT}::Widgets
+        protobuf::libprotobuf
         gRPC::grpc
         gRPC::grpc++
         )
 target_sources(DocoleChat PRIVATE ${sources})
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${sources})
+get_target_property(grpc_cpp_plugin_location gRPC::grpc_cpp_plugin LOCATION)
+protobuf_generate(
+    TARGET DocoleChat
+    LANGUAGE cpp
+    IMPORT_DIRS "${CMAKE_CURRENT_LIST_DIR}/../../proto"
+    PROTOC_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+protobuf_generate(
+    TARGET DocoleChat
+    LANGUAGE grpc
+    GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc
+    PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}"
+    IMPORT_DIRS "${CMAKE_CURRENT_LIST_DIR}/../../proto")
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/../.. FILES ${sources})
 
 #[[
 if (WIN32)

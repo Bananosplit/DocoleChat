@@ -3,11 +3,15 @@
 #include <iostream>
 #include "mainwindow.h"
 
+#include <grpc++/grpc++.h>
+
+#include "ircclient.h"
+
 int main(int argc, char *argv[]) {
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+
     QApplication a(argc, argv);
-    qDebug() << "Hello World";
     MainWindow mw;
     mw.show();
     return QApplication::exec();
-    //return 0;
 }

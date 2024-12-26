@@ -6,6 +6,7 @@
 #define DOCOLECHAT_MAINWINDOW_H
 
 #include <QMainWindow>
+#include "ircclient.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -14,6 +15,7 @@ QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
+    std::shared_ptr<IrcClient> ircClient;
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
