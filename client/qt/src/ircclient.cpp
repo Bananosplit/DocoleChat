@@ -13,7 +13,7 @@ std::string IrcClient::SendMessage(const std::string &message){
 
     ClientContext context;
 
-    Status status = stub->SendMessageW(&context, request, &reply);
+    Status status = stub->SendMessage(&context, request, &reply);
 
     if(status.ok()){
         return reply.message();
@@ -23,11 +23,19 @@ std::string IrcClient::SendMessage(const std::string &message){
     }
 }
 
-std::string IrcClient::GetMessage(){
+void IrcClient::GetMessages(std::list<std::string> &out){
     IrcResponse reply;
     IrcVoid request;
 
     ClientContext context;
 
     // Status status = stub->GetMessages(&context, request, &reply);
+
+    std::unique_ptr<ClientReader<IrcResponse>> reader(stub->GetMessages(&context, request));
+
+    while(reader->Read(&reply)){
+        std::cout << reply.message() << std::endl;
+        out.push_back((reply.message()));
+    }
+    Status status = reader->Finish();
 }

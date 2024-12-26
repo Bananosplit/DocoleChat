@@ -4,7 +4,7 @@ project(DocoleChat)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOUIC OFF)
 
 message(STATUS ${CMAKE_COMMAND})
 
@@ -31,6 +31,8 @@ set(sources
     ${CMAKE_CURRENT_BINARY_DIR}/irc.pb.cc
     ${CMAKE_CURRENT_BINARY_DIR}/irc.pb.h
 )
+qt_wrap_ui(UI_HEADERS src/mainwindow.ui)
+list(APPEND sources ${UI_HEADERS})
 
 target_include_directories(DocoleChat PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(DocoleChat

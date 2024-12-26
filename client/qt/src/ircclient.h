@@ -4,10 +4,13 @@
 #include <grpc++/grpc++.h>
 #include "irc.pb.h"
 #include "irc.grpc.pb.h"
+#include <string>
+#include <list>
 
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::Status;
+using grpc::ClientReader;
 
 using irc::IrcRequest;
 using irc::IrcResponse;
@@ -22,7 +25,7 @@ public:
     IrcClient(std::shared_ptr<Channel> channel);
 
     std::string SendMessage(const std::string &message);
-    std::string GetMessage();
+    void GetMessages(std::list<std::string> &out);
 
 };
 
