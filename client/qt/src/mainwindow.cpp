@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::return_pressed(){
     std::stringstream str;
     str << ":tenko PRIVMSG banana :" << ui->lineEdit->text().toStdString() << "\r\n";
-    auto ret = ircClient->SendMessageW(str.str());
+    auto ret = ircClient->SendMessage(str.str());
 
     ui->textBrowser->append(ui->lineEdit->text() + "\n");
 

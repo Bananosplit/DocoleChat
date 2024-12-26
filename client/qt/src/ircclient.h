@@ -11,6 +11,7 @@ using grpc::Status;
 
 using irc::IrcRequest;
 using irc::IrcResponse;
+using irc::IrcVoid;
 using irc::IrcService;
 
 class IrcClient
@@ -21,6 +22,7 @@ public:
     IrcClient(std::shared_ptr<Channel> channel);
 
     std::string SendMessage(const std::string &message);
+    std::string GetMessage();
 
 };
 

@@ -6,15 +6,18 @@ package irc;
 
 // import "google/protobuf/timestamp.proto";
 
-// Определение сервиса.
+
 service IrcService {
-  // определение метода с использованием rpc.
   rpc SendMessage(IrcRequest) returns (IrcResponse);
+  rpc GetMessages(IrcVoid) returns (stream  IrcResponse);
 }
 
 message IrcRequest {
   string message = 1;
 }
+
+message IrcVoid{}
+
 
 message IrcResponse {
   string message = 1;

@@ -22,3 +22,12 @@ std::string IrcClient::SendMessage(const std::string &message){
         return "gRPC failed";
     }
 }
+
+std::string IrcClient::GetMessage(){
+    IrcResponse reply;
+    IrcVoid request;
+
+    ClientContext context;
+
+    // Status status = stub->GetMessages(&context, request, &reply);
+}
