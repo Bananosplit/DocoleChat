@@ -9,29 +9,70 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <iostream>
+#include <string>
+#include <list>
+#include <QInputDialog>
+#include "ircserver.h"
+#include "irc.grpc.pb.h"
+#include "irc.pb.h"
+#include <grpc++/grpc++.h>
+#include <QTimer>
 
+void server_thread_func(){
+    std::string server_address("0.0.0.0:50051");
+    IrcServer service;
+
+    grpc::ServerBuilder builder;
+    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+    builder.RegisterService(&service);
+
+    auto ircServer = std::shared_ptr<grpc::Server>(builder.BuildAndStart());
+    std::cout << "Server listening on " << server_address << std::endl;
+
+    ircServer->Wait();
+}
 
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
-    auto channel = grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials());
+    server_thread = std::make_unique<std::thread>(server_thread_func);
+    server_thread->detach();
 
-    ircClient = std::make_shared<IrcClient>(channel);
+    ircClient = std::make_shared<IrcClient>();
+
+    bool ok;
+    QString text = QInputDialog::getText(this, "Input dialog", "Enter nickname", QLineEdit::Normal, "", &ok);
+    if(ok){
+        nick = text.toStdString();
+        std::stringstream str;
+        str << ":  NICK " << nick << "\r\n";
+        ircClient->SendMessage(str.str());
+    }
 
     QObject::connect(ui->lineEdit, &QLineEdit::returnPressed, this, &MainWindow::return_pressed);
 }
 
 void MainWindow::return_pressed(){
+
     std::stringstream str;
-    str << ":tenko PRIVMSG banana :" << ui->lineEdit->text().toStdString() << "\r\n";
+    str << ":" << nick << " PRIVMSG banana :" << ui->lineEdit->text().toStdString() << "\r\n";
+
+    std::list<std::string> messages;
+    ircClient->GetMessages(messages);
+    for(auto &i : messages){
+        ui->textBrowser->append(QString::fromStdString(i));
+    }
+
     auto ret = ircClient->SendMessage(str.str());
 
-    ui->textBrowser->append(ui->lineEdit->text() + "\n");
+    // ui->textBrowser->append(QString(nick) + ": " + ui->lineEdit->text());
+    ui->textBrowser->append(QString::fromStdString(str.str()));
 
     ui->lineEdit->clear();
 }
 
 MainWindow::~MainWindow() {
+    // ircServer->Shutdown();
     delete ui;
 }

@@ -8,18 +8,14 @@ package irc;
 
 
 service IrcService {
-  rpc SendMessage(IrcRequest) returns (IrcResponse);
-  rpc GetMessages(IrcVoid) returns (stream  IrcResponse);
+  rpc SendMessage(IrcMessage) returns (IrcReply);
 }
 
-message IrcRequest {
+message IrcMessage {
   string message = 1;
 }
 
-message IrcVoid{}
-
-
-message IrcResponse {
+message IrcReply {
   string message = 1;
 }
 

@@ -16,11 +16,14 @@ find_package(${QT} COMPONENTS
 find_package(gRPC CONFIG REQUIRED)
 find_package(protobuf CONFIG REQUIRED)
 
-add_executable(DocoleChat )
+add_executable(DocoleChat
+     )
 
 set(sources
     src/ircclient.h
     src/ircclient.cpp
+    src/ircserver.h
+    src/ircserver.cpp
     src/main.cpp
     src/mainwindow.cpp
     src/mainwindow.h
@@ -30,6 +33,8 @@ set(sources
     ../../proto/irc.proto
     ${CMAKE_CURRENT_BINARY_DIR}/irc.pb.cc
     ${CMAKE_CURRENT_BINARY_DIR}/irc.pb.h
+    ${CMAKE_CURRENT_BINARY_DIR}/irc.grpc.pb.cc
+    ${CMAKE_CURRENT_BINARY_DIR}/irc.grpc.pb.h
 )
 qt_wrap_ui(UI_HEADERS src/mainwindow.ui)
 list(APPEND sources ${UI_HEADERS})

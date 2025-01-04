@@ -12,17 +12,17 @@ using grpc::ClientContext;
 using grpc::Status;
 using grpc::ClientReader;
 
-using irc::IrcRequest;
-using irc::IrcResponse;
-using irc::IrcVoid;
+using irc::IrcMessage;
+using irc::IrcReply;
 using irc::IrcService;
 
 class IrcClient
 {
 private:
     std::unique_ptr<IrcService::Stub> stub;
+    std::shared_ptr<Channel> channel;
 public:
-    IrcClient(std::shared_ptr<Channel> channel);
+    IrcClient();
 
     std::string SendMessage(const std::string &message);
     void GetMessages(std::list<std::string> &out);
