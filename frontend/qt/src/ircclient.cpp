@@ -4,12 +4,21 @@ IrcClient::IrcClient(){
     channel = grpc::CreateChannel("localhost:5085", grpc::InsecureChannelCredentials());
 
     stub = IrcService::NewStub(channel);
+
+    ClientContext context;
+
+    IrcVoid stubArg;
+    IrcToken tokenResponse;
+    Status status = stub->GetToken(&context, stubArg, &tokenResponse);
+    token = tokenResponse.token();
+
 }
 
 std::string IrcClient::SendMessage(const std::string &message){
     IrcMessage request;
     // request.message = message;
     request.set_message(message);
+    request.set_token(token);
 
     IrcReply reply;
 
@@ -26,18 +35,17 @@ std::string IrcClient::SendMessage(const std::string &message){
 }
 
 void IrcClient::GetMessages(std::list<std::string> &out){
-    // IrcMessage reply;
-    // IrcVoid request;
+    IrcMessage reply;
+    IrcToken grpc_token;
+    grpc_token.set_token(token);
 
-    // ClientContext context;
+    ClientContext context;
 
-    // // Status status = stub->GetMessages(&context, request, &reply);
+    std::unique_ptr<ClientReader<IrcMessage>> reader(stub->GetMessages(&context, grpc_token));
 
-    // std::unique_ptr<ClientReader<IrcMessage>> reader(stub->GetMessages(&context, request));
-
-    // while(reader->Read(&reply)){
-    //     std::cout << reply.message() << std::endl;
-    //     out.push_back((reply.message()));
-    // }
-    // Status status = reader->Finish();
+    while(reader->Read(&reply)){
+        std::cout << reply.message() << std::endl;
+        out.push_back((reply.message()));
+    }
+    Status status = reader->Finish();
 }

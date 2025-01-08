@@ -20,26 +20,27 @@
 
 void server_thread_func(){
     std::string server_address("0.0.0.0:50051");
-    IrcServer service;
 
-    grpc::ServerBuilder builder;
-    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-    builder.RegisterService(&service);
+    // grpc::ServerBuilder builder;
+    // builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+    // builder.RegisterService(&service);
 
-    auto ircServer = std::shared_ptr<grpc::Server>(builder.BuildAndStart());
-    std::cout << "Server listening on " << server_address << std::endl;
+    // auto ircServer = std::shared_ptr<grpc::Server>(builder.BuildAndStart());
+    // std::cout << "Server listening on " << server_address << std::endl;
 
-    ircServer->Wait();
+    // ircServer->Wait();
 }
 
 MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
-    server_thread = std::make_unique<std::thread>(server_thread_func);
-    server_thread->detach();
+    // server_thread = std::make_unique<std::thread>(server_thread_func);
+    // server_thread->detach();
 
     ircClient = std::make_shared<IrcClient>();
+
+    std::stringstream irc_message;
 
     bool ok;
     QString text = QInputDialog::getText(this, "Input dialog", "Enter nickname", QLineEdit::Normal, "", &ok);
@@ -50,13 +51,16 @@ MainWindow::MainWindow(QWidget *parent) :
         ircClient->SendMessage(str.str());
     }
 
+    irc_message << ":" << nick << " JOIN " << "default" << "\r\n";
+    auto ret = ircClient->SendMessage(irc_message.str());
+
     QObject::connect(ui->lineEdit, &QLineEdit::returnPressed, this, &MainWindow::return_pressed);
 }
 
 void MainWindow::return_pressed(){
 
     std::stringstream str;
-    str << ":" << nick << " PRIVMSG banana :" << ui->lineEdit->text().toStdString() << "\r\n";
+    str << ":" << nick << " PRIVMSG default :" << ui->lineEdit->text().toStdString() << "\r\n";
 
     std::list<std::string> messages;
     ircClient->GetMessages(messages);
@@ -66,8 +70,14 @@ void MainWindow::return_pressed(){
 
     auto ret = ircClient->SendMessage(str.str());
 
+    ircClient->GetMessages(messages);
+
+    for(auto &i : messages){
+        ui->textBrowser->append(QString::fromStdString(i));
+    }
+
     // ui->textBrowser->append(QString(nick) + ": " + ui->lineEdit->text());
-    ui->textBrowser->append(QString::fromStdString(str.str()));
+    // ui->textBrowser->append(QString::fromStdString(str.str()));
 
     ui->lineEdit->clear();
 }

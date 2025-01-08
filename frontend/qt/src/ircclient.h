@@ -15,12 +15,15 @@ using grpc::ClientReader;
 using irc::IrcMessage;
 using irc::IrcReply;
 using irc::IrcService;
+using irc::IrcVoid;
+using irc::IrcToken;
 
 class IrcClient
 {
 private:
     std::unique_ptr<IrcService::Stub> stub;
     std::shared_ptr<Channel> channel;
+    std::string token;
 public:
     IrcClient();
 
