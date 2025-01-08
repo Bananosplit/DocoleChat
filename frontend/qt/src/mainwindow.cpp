@@ -54,6 +54,12 @@ MainWindow::MainWindow(QWidget *parent) :
     irc_message << ":" << nick << " JOIN " << "default" << "\r\n";
     auto ret = ircClient->SendMessage(irc_message.str());
 
+    std::list<std::string> messages;
+    ircClient->GetMessages(messages);
+    for(auto &i : messages){
+        ui->textBrowser->append(QString::fromStdString(i));
+    }
+
     QObject::connect(ui->lineEdit, &QLineEdit::returnPressed, this, &MainWindow::return_pressed);
 }
 
@@ -62,16 +68,11 @@ void MainWindow::return_pressed(){
     std::stringstream str;
     str << ":" << nick << " PRIVMSG default :" << ui->lineEdit->text().toStdString() << "\r\n";
 
-    std::list<std::string> messages;
-    ircClient->GetMessages(messages);
-    for(auto &i : messages){
-        ui->textBrowser->append(QString::fromStdString(i));
-    }
+    std::list<std::string> messages;    
 
     auto ret = ircClient->SendMessage(str.str());
 
     ircClient->GetMessages(messages);
-
     for(auto &i : messages){
         ui->textBrowser->append(QString::fromStdString(i));
     }

@@ -44,7 +44,7 @@ void IrcClient::GetMessages(std::list<std::string> &out){
     std::unique_ptr<ClientReader<IrcMessage>> reader(stub->GetMessages(&context, grpc_token));
 
     while(reader->Read(&reply)){
-        std::cout << reply.message() << std::endl;
+        // std::cout << reply.message() << std::endl;
         out.push_back((reply.message()));
     }
     Status status = reader->Finish();
