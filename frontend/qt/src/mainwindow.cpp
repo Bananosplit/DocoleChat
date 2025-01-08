@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     irc_message << ":" << nick << " JOIN " << "default" << "\r\n";
-    auto ret = ircClient->SendMessage(irc_message.str());
+    auto ret = ircClient->SendMessage(irc_message.str());    
 
     std::list<std::string> messages;
     ircClient->GetMessages(messages);
@@ -60,7 +60,19 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->textBrowser->append(QString::fromStdString(i));
     }
 
+    message_timer = new QTimer();
     QObject::connect(ui->lineEdit, &QLineEdit::returnPressed, this, &MainWindow::return_pressed);
+    QObject::connect(message_timer, &QTimer::timeout, this, &MainWindow::get_messages);
+    message_timer->start(1000);
+}
+
+void MainWindow::get_messages(){
+    std::list<std::string> messages;
+
+    ircClient->GetMessages(messages);
+    for(auto &i : messages){
+        ui->textBrowser->append(QString::fromStdString(i));
+    }
 }
 
 void MainWindow::return_pressed(){
@@ -68,14 +80,10 @@ void MainWindow::return_pressed(){
     std::stringstream str;
     str << ":" << nick << " PRIVMSG default :" << ui->lineEdit->text().toStdString() << "\r\n";
 
-    std::list<std::string> messages;    
 
     auto ret = ircClient->SendMessage(str.str());
 
-    ircClient->GetMessages(messages);
-    for(auto &i : messages){
-        ui->textBrowser->append(QString::fromStdString(i));
-    }
+    get_messages();
 
     // ui->textBrowser->append(QString(nick) + ": " + ui->lineEdit->text());
     // ui->textBrowser->append(QString::fromStdString(str.str()));

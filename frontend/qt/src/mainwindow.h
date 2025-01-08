@@ -22,6 +22,7 @@ class MainWindow : public QMainWindow {
 
     std::string nick;
 
+    QTimer *message_timer;
 public:
     explicit MainWindow(QWidget *parent = nullptr);
 
@@ -33,6 +34,7 @@ public:
 private:
     Ui::MainWindow *ui;
 private slots:
+    void get_messages();
     void return_pressed();
 };
 
