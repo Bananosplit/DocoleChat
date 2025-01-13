@@ -34,7 +34,7 @@ std::string send_cmd(std::shared_ptr<IrcService::Stub> stub, std::string token, 
         std::unique_ptr<ClientReader<IrcMessage>> reader(stub->GetMessages(&context, grpc_token));
 
         while(reader->Read(&reply)){
-            std::cout << reply.message() << std::endl;
+            std::cout << reply.message();
         }
         Status status = reader->Finish();
         return "000";

@@ -35,14 +35,14 @@ public class IrcServiceServer : IrcService.IrcServiceBase
     private String ParseMessage(String token, String message){
         Regex r;
         Match match;
-        r = new Regex(@"(:(\w+))?\s+NICK\s+(\w+)\s*\r\n");
+        r = new Regex(@"NICK\s+(\w+)\s*\r\n");
         match = r.Match(message);
         if (match.Success){
             // foreach(var v in match.Groups.Values){
             //     Console.WriteLine(v.Value);
             // }
             User user = new User();
-            user.Nick = match.Groups[3].Value;
+            user.Nick = match.Groups[1].Value;
             string nickname = user.Nick;
             NicknameTokenDict.Add(nickname, token);   
             TokenNicknameDict.Add(token, nickname);
@@ -50,11 +50,11 @@ public class IrcServiceServer : IrcService.IrcServiceBase
             return "400";            
         }
 
-        r = new Regex(@":(\w+)\s+JOIN\s+(\w+)\r\n");
+        r = new Regex(@"JOIN\s+(\w+)\r\n");
         match = r.Match(message);
         if(match.Success){
-            String channel_name = match.Groups[2].Value;
-            String nickname = match.Groups[1].Value;
+            String channel_name = match.Groups[1].Value;
+            String nickname = TokenNicknameDict[token];
             if(!channelMessages.ContainsKey(channel_name)){
                 channelMessages.Add(channel_name, new List<string>());
             }
@@ -68,18 +68,18 @@ public class IrcServiceServer : IrcService.IrcServiceBase
             return "400";    
         }
         
-        r = new Regex(@":(\w+)\s+PRIVMSG\s+(\w+)\s+:(.*)\r\n");
+        r = new Regex(@"PRIVMSG\s+(\w+)\s+:(.*)\r\n");
         match = r.Match(message);
         if (match.Success){ 
-            String nick = match.Groups[1].Value;
-            String channel_name = match.Groups[2].Value;
-            String text = match.Groups[3].Value;
+            String nickname = TokenNicknameDict[token];
+            String channel_name = match.Groups[1].Value;
+            String text = match.Groups[2].Value;
             if(!channelMessages.ContainsKey(channel_name)){
                 return "401";
             }
-            channelMessages[channel_name].Add(nick + ": " + text);
+            channelMessages[channel_name].Add(":" + nickname + " " + match.Groups[0].Value);
             foreach(var nk in channelMembers[channel_name]){
-                nicknameMessages[nk].AddMessage(nick + ": " + text);
+                nicknameMessages[nk].AddMessage(":" + nickname + " " + match.Groups[0].Value);
             }
             return "400";  
         }
