@@ -57,3 +57,4 @@ build/
 
 # other
 *.pdf
+build*/
