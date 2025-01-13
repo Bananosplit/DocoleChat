@@ -22,16 +22,31 @@ using irc::IrcVoid;
 using irc::IrcToken;
 
 std::string send_cmd(std::shared_ptr<IrcService::Stub> stub, std::string token, const char *line){
+    std::string cmd(line);
+    std::string opcode = cmd.substr(0,cmd.find(" "));
+    if(opcode == "get"){
+        IrcMessage reply;
+        IrcToken grpc_token;
+        grpc_token.set_token(token);
+
+        ClientContext context;
+
+        std::unique_ptr<ClientReader<IrcMessage>> reader(stub->GetMessages(&context, grpc_token));
+
+        while(reader->Read(&reply)){
+            std::cout << reply.message() << std::endl;
+        }
+        Status status = reader->Finish();
+        return "000";
+    }
+
     IrcMessage request;
-//    // request.message = message;
-    std::string message(line);
-    request.set_message(message);
+    request.set_message(cmd+ "\r\n");
     request.set_token(token);
 
     IrcReply reply;
 
     ClientContext context;
-
     Status status = stub->SendMessage(&context, request, &reply);
 
     if(status.ok()){
@@ -64,7 +79,7 @@ int main(int argc, char ** argv)
         return 1;
     }
     token = tokenResponse.token();
-    std::cout << "get token: " << std::endl;
+    std::cout << "get token: " << token << std::endl;
 
     while(1)
     {

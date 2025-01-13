@@ -21,7 +21,7 @@ public class IrcServiceServer : IrcService.IrcServiceBase
 
     // TODO do channel is detach class
     static Dictionary<String, List<String>> channelMessages = new Dictionary<string, List<string>>();
-    static Dictionary<String, List<String>> nicknameMessages = new Dictionary<string, List<string>>();
+    static Dictionary<String, User> nicknameMessages = new Dictionary<string, User>();
     static Dictionary<String, List<String>> channelMembers = new Dictionary<string, List<string>>();
 
     // static Dictionary<User, >
@@ -35,13 +35,18 @@ public class IrcServiceServer : IrcService.IrcServiceBase
     private String ParseMessage(String token, String message){
         Regex r;
         Match match;
-        r = new Regex(@":\s+NICK\s+(\w+).*");
+        r = new Regex(@"(:(\w+))?\s+NICK\s+(\w+)\s*\r\n");
         match = r.Match(message);
         if (match.Success){
-            string nickname = match.Groups[1].Value;
+            // foreach(var v in match.Groups.Values){
+            //     Console.WriteLine(v.Value);
+            // }
+            User user = new User();
+            user.Nick = match.Groups[3].Value;
+            string nickname = user.Nick;
             NicknameTokenDict.Add(nickname, token);   
             TokenNicknameDict.Add(token, nickname);
-            nicknameMessages.Add(nickname, new List<string>());
+            nicknameMessages.Add(nickname, user);
             return "400";            
         }
 
@@ -58,7 +63,7 @@ public class IrcServiceServer : IrcService.IrcServiceBase
             }
             channelMembers[channel_name].Add(nickname);
             foreach(var mes in channelMessages[channel_name]){
-                nicknameMessages[nickname].Add(mes);
+                nicknameMessages[nickname].messages.Add(mes);
             }
             return "400";    
         }
@@ -74,12 +79,12 @@ public class IrcServiceServer : IrcService.IrcServiceBase
             }
             channelMessages[channel_name].Add(nick + ": " + text);
             foreach(var nk in channelMembers[channel_name]){
-                nicknameMessages[nk].Add(nick + ": " + text);
+                nicknameMessages[nk].AddMessage(nick + ": " + text);
             }
             return "400";  
         }
 
-        return "400";  
+        return "421";  
     }
 
     public override Task<IrcToken> GetToken(IrcVoid request, ServerCallContext context){
@@ -100,10 +105,9 @@ public class IrcServiceServer : IrcService.IrcServiceBase
     public override async Task GetMessages(IrcToken request, IServerStreamWriter<IrcMessage> responseStream, ServerCallContext context)
     {   
         String nickname = TokenNicknameDict[request.Token];
-        foreach(var mes in nicknameMessages[nickname]){            
+        foreach(var mes in nicknameMessages[nickname].GetMessages()){            
             await responseStream.WriteAsync(new IrcMessage{Message = mes});            
-        }
-        nicknameMessages[nickname].Clear();
+        }        
     }
 
 }
