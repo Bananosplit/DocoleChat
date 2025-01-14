@@ -8,11 +8,13 @@ class User{
     public List<string> channels;
 
     public bool online;    
+    public bool connected;
 
     public User(){
         messages = new List<string>();
         channels = new List<string>();
         online = false;
+        connected = false;
     }
 
     public void AddMessage(string mes){

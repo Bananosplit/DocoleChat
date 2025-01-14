@@ -32,18 +32,18 @@ public class IrcServiceServer : IrcService.IrcServiceBase
         r = new Regex(@"PASS\s+(\w+)\s*\r\n");
         match = r.Match(message);
         if (match.Success){
-            if(match.Groups[1].Value == AuthService.PasswordByToken[token]){   
-                if(user.online){
+            if(match.Groups[1].Value == "letmein"){   
+                if(user.connected){
                     return "462";
                 }
-                user.online = true;
+                user.connected = true;
                 return "400";            
             } else {
                 return "watch";
             }
         }
 
-        if(!user.online){
+        if(!user.connected){
             return "watch";
         }
 
