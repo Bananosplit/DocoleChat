@@ -22,9 +22,8 @@ using irc::IrcService;
 using irc::IrcVoid;
 using irc::IrcToken;
 
-int current = -1;
-std::vector<std::shared_ptr<IrcService::Stub>> stubs;
-std::vector<std::string> tokens;
+std::shared_ptr<IrcService::Stub> stub;
+std::string token = "";
 
 std::string command_get(const char *line){
     return "000";
@@ -37,37 +36,28 @@ std::string send_cmd(const char *line){
 
 
     if(opcode == "/connect"){
-        std::shared_ptr<IrcService::Stub> stub;
-        std::shared_ptr<Channel> channel;
-        std::string token;
+        if(!stub){
+            std::shared_ptr<Channel> channel;
+            std::string token;
 
-        channel = grpc::CreateChannel("localhost:5085", grpc::InsecureChannelCredentials());
-        stub = IrcService::NewStub(channel);
-
-
-        ClientContext context;
-
-        IrcVoid stubArg;
-        IrcToken tokenResponse;
-        Status status = stub->GetToken(&context, stubArg, &tokenResponse);
-        if(!status.ok()){
-            std::cout << status.error_code() << ": " << status.error_message() << std::endl;
-            std::cout << "gRPC failed" << std::endl;
+            channel = grpc::CreateChannel("localhost:5085", grpc::InsecureChannelCredentials());
+            stub = IrcService::NewStub(channel);
+            return "000";
+        } else {
             return "002";
         }
-        token = tokenResponse.token();
-        stubs.push_back(stub);
-        tokens.push_back(token);
-        current = tokens.size() - 1;
+    }
+    if(opcode == "/settoken"){
+        token = "oiweavma";
         return "000";
     }
 
-    if(current < 0){
+    if(!stub){
         return "001";
     }
-
-    std::string token = tokens[current];
-    std::shared_ptr<IrcService::Stub> stub = stubs[current];
+    if(token.empty()){
+        return "002";
+    }
 
     if(opcode == "/get"){
         IrcMessage reply;

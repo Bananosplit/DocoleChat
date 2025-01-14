@@ -28,24 +28,29 @@ public class IrcServiceServer : IrcService.IrcServiceBase
     private string ParseMessage(string token, string message){
         Regex r;
         Match match;
+        User user = users[token];
         r = new Regex(@"PASS\s+(\w+)\s*\r\n");
         match = r.Match(message);
         if (match.Success){
-            if(match.Groups[1].Value == "letmein"){
-                User user = new User();
-                user.Token = token;
-                users.Add(token, user);
+            if(match.Groups[1].Value == AuthService.PasswordByToken[token]){   
+                if(user.online){
+                    return "462";
+                }
+                user.online = true;
                 return "400";            
             } else {
                 return "watch";
             }
         }
 
+        if(!user.online){
+            return "watch";
+        }
+
         r = new Regex(@"NICK\s+(\w+)\s*\r\n");
         match = r.Match(message);
         if (match.Success){
             if(users.ContainsKey(token)){
-                User user = users[token];
                 user.Nick = match.Groups[1].Value;
                 return "400";
             } else {
@@ -57,13 +62,13 @@ public class IrcServiceServer : IrcService.IrcServiceBase
         match = r.Match(message);
         if(match.Success){
             string channel_name = match.Groups[1].Value;
-            string nickname = users[token].Nick;
+            string nickname = user.Nick;
             if(!channels.ContainsKey(channel_name)){
                 channels.Add(channel_name, new Channel(channel_name));
             }
             channels[channel_name].users.Add(nickname);                        
             foreach(var mes in channels[channel_name].messages){
-                users[token].messages.Add(mes);
+                user.messages.Add(mes);
             }
             return "400";    
         }
@@ -71,7 +76,7 @@ public class IrcServiceServer : IrcService.IrcServiceBase
         r = new Regex(@"PRIVMSG\s+(#?\w+)\s+:(.*)\r\n");
         match = r.Match(message);
         if (match.Success){ 
-            string nickname = users[token].Nick;
+            string nickname = user.Nick;
             string channel_name = match.Groups[1].Value;
             if(!channels.ContainsKey(channel_name)){
                 return "401";
@@ -85,10 +90,8 @@ public class IrcServiceServer : IrcService.IrcServiceBase
 
         r = new Regex(@"QUIT\s+:(.*)\r\n");
         match = r.Match(message);
-        if (match.Success){ 
-            if(users.ContainsKey(token)){
-                users.Remove(token);         
-            }   
+        if (match.Success){             
+            user.online = false;            
             return "400";  
         }
 

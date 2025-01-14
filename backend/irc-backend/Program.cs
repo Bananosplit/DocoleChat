@@ -1,5 +1,8 @@
 using irc_backend.Services;
 
+AuthService.PasswordByToken["oiweavma"] = "irWeytewfOdMatAmtyepjushvoufrokicAtHa";
+AuthService.PasswordByToken["cayhalUr"] = "acgijQuaphDoibGapailOihajakivItFokjiodbi";
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

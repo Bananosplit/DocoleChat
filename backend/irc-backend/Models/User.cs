@@ -1,3 +1,5 @@
+// namespace irc_backend.Services;
+
 class User{
     public string Token {get; set; } = string.Empty;
     public string Nick {get; set; } = string.Empty;
@@ -5,9 +7,12 @@ class User{
     public List<string> messages;
     public List<string> channels;
 
+    public bool online;    
+
     public User(){
         messages = new List<string>();
         channels = new List<string>();
+        online = false;
     }
 
     public void AddMessage(string mes){
