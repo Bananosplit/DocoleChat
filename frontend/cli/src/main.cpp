@@ -8,6 +8,7 @@
 #include <grpc++/grpc++.h>
 #include "irc.pb.h"
 #include "irc.grpc.pb.h"
+#include <vector>
 
 
 using grpc::Channel;
@@ -21,10 +22,54 @@ using irc::IrcService;
 using irc::IrcVoid;
 using irc::IrcToken;
 
-std::string send_cmd(std::shared_ptr<IrcService::Stub> stub, std::string token, const char *line){
+int current = -1;
+std::vector<std::shared_ptr<IrcService::Stub>> stubs;
+std::vector<std::string> tokens;
+
+std::string command_get(const char *line){
+    return "000";
+}
+
+std::string send_cmd(const char *line){
+
     std::string cmd(line);
-    std::string opcode = cmd.substr(0,cmd.find(" "));
-    if(opcode == "get"){
+    std::string opcode = cmd.substr(0,cmd.find(" "));      
+
+
+    if(opcode == "/connect"){
+        std::shared_ptr<IrcService::Stub> stub;
+        std::shared_ptr<Channel> channel;
+        std::string token;
+
+        channel = grpc::CreateChannel("localhost:5085", grpc::InsecureChannelCredentials());
+        stub = IrcService::NewStub(channel);
+
+
+        ClientContext context;
+
+        IrcVoid stubArg;
+        IrcToken tokenResponse;
+        Status status = stub->GetToken(&context, stubArg, &tokenResponse);
+        if(!status.ok()){
+            std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+            std::cout << "gRPC failed" << std::endl;
+            return "002";
+        }
+        token = tokenResponse.token();
+        stubs.push_back(stub);
+        tokens.push_back(token);
+        current = tokens.size() - 1;
+        return "000";
+    }
+
+    if(current < 0){
+        return "001";
+    }
+
+    std::string token = tokens[current];
+    std::shared_ptr<IrcService::Stub> stub = stubs[current];
+
+    if(opcode == "/get"){
         IrcMessage reply;
         IrcToken grpc_token;
         grpc_token.set_token(token);
@@ -40,6 +85,9 @@ std::string send_cmd(std::shared_ptr<IrcService::Stub> stub, std::string token, 
         return "000";
     }
 
+    if(opcode == "/setclient"){
+        return "000";
+    }
     IrcMessage request;
     request.set_message(cmd+ "\r\n");
     request.set_token(token);
@@ -59,27 +107,7 @@ std::string send_cmd(std::shared_ptr<IrcService::Stub> stub, std::string token, 
 
 int main(int argc, char ** argv)
 {
-    GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-    std::shared_ptr<IrcService::Stub> stub;
-    std::shared_ptr<Channel> channel;
-    std::string token;
-
-    channel = grpc::CreateChannel("localhost:5085", grpc::InsecureChannelCredentials());
-    stub = IrcService::NewStub(channel);
-
-    ClientContext context;
-
-    IrcVoid stubArg;
-    IrcToken tokenResponse;
-    Status status = stub->GetToken(&context, stubArg, &tokenResponse);
-    if(!status.ok()){
-        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
-        std::cout << "gRPC failed" << std::endl;
-        return 1;
-    }
-    token = tokenResponse.token();
-    std::cout << "get token: " << token << std::endl;
+    GOOGLE_PROTOBUF_VERIFY_VERSION;   
 
     while(1)
     {
@@ -88,7 +116,7 @@ int main(int argc, char ** argv)
         if(*line) add_history(line);
         if(strcmp(line, "exit") == 0) break;
 
-        std::string res = send_cmd(stub, token, line);
+        std::string res = send_cmd(line);
         std::cout << res << std::endl;
 
         free(line);
