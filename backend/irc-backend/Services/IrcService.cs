@@ -13,12 +13,9 @@ public class IrcServiceServer : IrcService.IrcServiceBase
 {
     private readonly ILogger<IrcServiceServer> _logger;
 
-        
-    static Dictionary<string, Channel> channels = new Dictionary<string, Channel>();
-    static Dictionary<string, User> users = new Dictionary<string, User>();    
-
-    // static Dictionary<User, >
-    static int counter = 0;
+    static ChannelService channelService = new ChannelService();    
+    
+    public static Dictionary<string, User> usersByToken = new Dictionary<string, User>();        
 
     public IrcServiceServer(ILogger<IrcServiceServer> logger)
     {
@@ -28,29 +25,33 @@ public class IrcServiceServer : IrcService.IrcServiceBase
     private string ParseMessage(string token, string message){
         Regex r;
         Match match;
-        User user = users[token];
+        if(!usersByToken.ContainsKey(token)){
+            return "500";
+        }
+
+        User user = usersByToken[token];
         r = new Regex(@"PASS\s+(\w+)\s*\r\n");
         match = r.Match(message);
         if (match.Success){
             if(match.Groups[1].Value == "letmein"){   
-                if(user.connected){
+                if(user.passed){
                     return "462";
                 }
-                user.connected = true;
+                user.passed = true;
                 return "400";            
             } else {
                 return "watch";
             }
         }
 
-        if(!user.connected){
+        if(!user.passed){
             return "watch";
         }
 
         r = new Regex(@"NICK\s+(\w+)\s*\r\n");
         match = r.Match(message);
         if (match.Success){
-            if(users.ContainsKey(token)){
+            if(usersByToken.ContainsKey(token)){
                 user.Nick = match.Groups[1].Value;
                 return "400";
             } else {
@@ -63,13 +64,24 @@ public class IrcServiceServer : IrcService.IrcServiceBase
         if(match.Success){
             string channel_name = match.Groups[1].Value;
             string nickname = user.Nick;
-            if(!channels.ContainsKey(channel_name)){
-                channels.Add(channel_name, new Channel(channel_name));
+            Channel channel = channelService.getChannel(channel_name);            
+            channel.AddMessage(":" + nickname + " JOIN" + "\r\n");
+            channel.AddUser(user);            
+            return "400";    
+        }
+        r = new Regex(@"PART\s+(#?\w+)\s*(:\w*)?\r\n");
+        match = r.Match(message);
+        if(match.Success){
+            string channel_name = match.Groups[1].Value;
+            string nickname = user.Nick;
+            Channel channel = channelService.getChannel(channel_name);
+            if(match.Groups[2].Value == ""){
+                channel.AddMessage(":" + nickname + " PART " + channel_name + "\r\n");
+            } else {
+                channel.AddMessage(":" + nickname + " PART " + channel_name + " :" + match.Groups[2].Value + "\r\n");
             }
-            channels[channel_name].users.Add(nickname);                        
-            foreach(var mes in channels[channel_name].messages){
-                user.messages.Add(mes);
-            }
+            
+            channel.AddUser(user);            
             return "400";    
         }
         
@@ -78,20 +90,19 @@ public class IrcServiceServer : IrcService.IrcServiceBase
         if (match.Success){ 
             string nickname = user.Nick;
             string channel_name = match.Groups[1].Value;
-            if(!channels.ContainsKey(channel_name)){
-                return "401";
+            Channel channel = channelService.getChannel(channel_name);            
+            if(channel.Contains(user)){
+                channel.AddMessage(":" + nickname + " " + match.Groups[0].Value + "\r\n");
+                return "400";  
+            } else {
+                return "watch";
             }
-            channels[channel_name].messages.Add(":" + nickname + " " + match.Groups[0].Value);
-            foreach(var nk in channels[channel_name].users){
-                users[token].AddMessage(":" + nickname + " " + match.Groups[0].Value);
-            }
-            return "400";  
         }
 
         r = new Regex(@"QUIT\s+:(.*)\r\n");
         match = r.Match(message);
         if (match.Success){             
-            user.online = false;            
+            user.passed = false;            
             return "400";  
         }
 
@@ -100,9 +111,10 @@ public class IrcServiceServer : IrcService.IrcServiceBase
 
     public override Task<IrcToken> GetToken(IrcVoid request, ServerCallContext context){
         var token = new IrcToken{
-            Token = counter.ToString(),
+            // Token = counter.ToString(),
+            Token = ""
         };
-        counter++;
+        // counter++;
         
         return Task.FromResult(token);
     }
@@ -115,7 +127,7 @@ public class IrcServiceServer : IrcService.IrcServiceBase
 
     public override async Task GetMessages(IrcToken request, IServerStreamWriter<IrcMessage> responseStream, ServerCallContext context)
     {           
-        foreach(var mes in users[request.Token].GetMessages()){            
+        foreach(var mes in usersByToken[request.Token].GetMessages()){            
             await responseStream.WriteAsync(new IrcMessage{Message = mes});            
         }        
     }

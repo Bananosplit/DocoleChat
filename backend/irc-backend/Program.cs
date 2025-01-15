@@ -1,7 +1,18 @@
+using Irc;
 using irc_backend.Services;
 
-AuthService.PasswordByToken["oiweavma"] = "irWeytewfOdMatAmtyepjushvoufrokicAtHa";
-AuthService.PasswordByToken["cayhalUr"] = "acgijQuaphDoibGapailOihajakivItFokjiodbi";
+User user;
+
+user = new User();
+user.Token = "irWeytewfOdMatAmtyepjushvoufrokicAtHa";
+user.Nick = "0000";
+IrcServiceServer.usersByToken.Add(user.Token, user);
+
+user = new User();
+user.Nick = "0001";
+user.Token = "acgijQuaphDoibGapailOihajakivItFokjiodbi";
+IrcServiceServer.usersByToken.Add(user.Token, user);
+
 
 var builder = WebApplication.CreateBuilder(args);
 
