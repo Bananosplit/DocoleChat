@@ -36,19 +36,15 @@ std::string send_cmd(const char *line){
 
 
     if(opcode == "/connect"){
-        if(!stub){
-            std::shared_ptr<Channel> channel;
-            std::string token;
+        std::shared_ptr<Channel> channel;
+        std::string token;
 
-            channel = grpc::CreateChannel("localhost:5085", grpc::InsecureChannelCredentials());
-            stub = IrcService::NewStub(channel);
-            return "000";
-        } else {
-            return "002";
-        }
+        channel = grpc::CreateChannel("localhost:8080", grpc::InsecureChannelCredentials());
+        stub = IrcService::NewStub(channel);
+        return "000";
     }
     if(opcode == "/settoken"){
-        token = "oiweavma";
+        token = "irWeytewfOdMatAmtyepjushvoufrokicAtHa";
         return "000";
     }
 
