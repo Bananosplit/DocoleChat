@@ -16,8 +16,7 @@ find_package(${QT} COMPONENTS
 find_package(gRPC CONFIG REQUIRED)
 find_package(protobuf CONFIG REQUIRED)
 
-add_executable(DocoleChat
-     )
+add_executable(DocoleChat)
 
 set(sources
     src/ircclient.h
@@ -30,6 +29,14 @@ set(sources
     src/mainwindow.ui
     src/message.h
     src/message.cpp
+    src/ChannelListWidget.h
+    src/ChannelListWidget.cpp
+    src/channelwidget.h
+    src/channelwidget.cpp
+    src/chatwidget.h
+    src/chatwidget.cpp
+    src/chatwidget.ui
+
     ../../proto/irc.proto
     ${CMAKE_CURRENT_BINARY_DIR}/irc.pb.cc
     ${CMAKE_CURRENT_BINARY_DIR}/irc.pb.h
@@ -37,9 +44,13 @@ set(sources
     ${CMAKE_CURRENT_BINARY_DIR}/irc.grpc.pb.h
 )
 qt_wrap_ui(UI_HEADERS src/mainwindow.ui)
+qt_wrap_ui(UI_HEADERS src/chatwidget.ui)
 list(APPEND sources ${UI_HEADERS})
 
-target_include_directories(DocoleChat PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(DocoleChat
+    PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/src)
 target_link_libraries(DocoleChat
         ${QT}::Core
         ${QT}::Widgets
@@ -62,6 +73,7 @@ protobuf_generate(
     PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}"
     IMPORT_DIRS "${CMAKE_CURRENT_LIST_DIR}/../../proto")
 
+#source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/../.. FILES ${sources})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/../.. FILES ${sources})
 
 #[[

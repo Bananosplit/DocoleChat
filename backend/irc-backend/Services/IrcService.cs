@@ -64,11 +64,14 @@ public class IrcServiceServer : IrcService.IrcServiceBase
         if(match.Success){
             string channel_name = match.Groups[1].Value;
             string nickname = user.Nick;
-            Channel channel = channelService.getChannel(channel_name);            
-            channel.AddMessage(":" + nickname + " JOIN" + "\r\n");
-            channel.AddUser(user);            
+            Channel channel = channelService.getChannel(channel_name);
+            if(!channel.Contains(user)){
+                channel.AddMessage(":" + nickname + " JOIN" + "\r\n");
+                channel.AddUser(user);
+            }
             return "400";    
         }
+        
         r = new Regex(@"PART\s+(#?\w+)\s*(:\w*)?\r\n");
         match = r.Match(message);
         if(match.Success){

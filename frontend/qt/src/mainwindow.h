@@ -17,12 +17,8 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow {
     Q_OBJECT
     std::shared_ptr<IrcClient> ircClient;
-    std::shared_ptr<grpc::Server> ircServer;
-    std::unique_ptr<std::thread> server_thread;
-
     std::string nick;
 
-    QTimer *message_timer;
 public:
     explicit MainWindow(QWidget *parent = nullptr);
 
@@ -34,8 +30,8 @@ public:
 private:
     Ui::MainWindow *ui;
 private slots:
-    void get_messages();
-    void return_pressed();
+signals:
+    void ircClientChanged(std::shared_ptr<IrcClient> channel);
 };
 
 

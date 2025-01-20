@@ -17,6 +17,7 @@
 #include "irc.pb.h"
 #include <grpc++/grpc++.h>
 #include <QTimer>
+#include <QRegularExpression>
 
 void server_thread_func(){
     std::string server_address("0.0.0.0:50051");
@@ -39,57 +40,16 @@ MainWindow::MainWindow(QWidget *parent) :
     // server_thread->detach();
 
     ircClient = std::make_shared<IrcClient>();
+    QObject::connect(this, &MainWindow::ircClientChanged, ui->chatWidget, &ChatWidget::ircClientChanged);
+    emit ircClientChanged(ircClient);
+
 
     std::stringstream irc_message;
-
-    bool ok;
-    QString text = QInputDialog::getText(this, "Input dialog", "Enter nickname", QLineEdit::Normal, "", &ok);
-    if(ok){
-        nick = text.toStdString();
-        std::stringstream str;
-        str << ":  NICK " << nick << "\r\n";
-        ircClient->SendMessage(str.str());
-    }
-
     irc_message << ":" << nick << " JOIN " << "default" << "\r\n";
-    auto ret = ircClient->SendMessage(irc_message.str());    
+    auto ret = ircClient->SendMessage(irc_message.str());
 
-    std::list<std::string> messages;
-    ircClient->GetMessages(messages);
-    for(auto &i : messages){
-        ui->textBrowser->append(QString::fromStdString(i));
-    }
-
-    message_timer = new QTimer();
-    QObject::connect(ui->lineEdit, &QLineEdit::returnPressed, this, &MainWindow::return_pressed);
-    QObject::connect(message_timer, &QTimer::timeout, this, &MainWindow::get_messages);
-    message_timer->start(1000);
 }
 
-void MainWindow::get_messages(){
-    std::list<std::string> messages;
-
-    ircClient->GetMessages(messages);
-    for(auto &i : messages){
-        ui->textBrowser->append(QString::fromStdString(i));
-    }
-}
-
-void MainWindow::return_pressed(){
-
-    std::stringstream str;
-    str << ":" << nick << " PRIVMSG default :" << ui->lineEdit->text().toStdString() << "\r\n";
-
-
-    auto ret = ircClient->SendMessage(str.str());
-
-    get_messages();
-
-    // ui->textBrowser->append(QString(nick) + ": " + ui->lineEdit->text());
-    // ui->textBrowser->append(QString::fromStdString(str.str()));
-
-    ui->lineEdit->clear();
-}
 
 MainWindow::~MainWindow() {
     // ircServer->Shutdown();

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>383</width>
+    <width>613</width>
     <height>480</height>
    </rect>
   </property>
@@ -14,23 +14,23 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="ChannelListWidget" name="channelListWidget" native="true">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>400</y>
-      <width>321</width>
-      <height>31</height>
+      <x>0</x>
+      <y>0</y>
+      <width>231</width>
+      <height>441</height>
      </rect>
     </property>
    </widget>
-   <widget class="QTextBrowser" name="textBrowser">
+   <widget class="ChatWidget" name="chatWidget" native="true">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>351</width>
-      <height>351</height>
+      <x>230</x>
+      <y>0</y>
+      <width>381</width>
+      <height>441</height>
      </rect>
     </property>
    </widget>
@@ -40,13 +40,27 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>383</width>
-     <height>22</height>
+     <width>613</width>
+     <height>23</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ChannelListWidget</class>
+   <extends>QWidget</extends>
+   <header>ChannelListWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ChatWidget</class>
+   <extends>QWidget</extends>
+   <header>chatwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

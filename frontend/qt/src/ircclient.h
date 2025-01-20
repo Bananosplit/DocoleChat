@@ -21,8 +21,7 @@ using irc::IrcToken;
 class IrcClient
 {
 private:
-    std::unique_ptr<IrcService::Stub> stub;
-    std::shared_ptr<Channel> channel;
+    std::shared_ptr<IrcService::Stub> stub;
     std::string token;
 public:
     IrcClient();

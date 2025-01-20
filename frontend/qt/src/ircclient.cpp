@@ -1,22 +1,31 @@
 #include "ircclient.h"
 
 IrcClient::IrcClient(){
-    channel = grpc::CreateChannel("localhost:5085", grpc::InsecureChannelCredentials());
+    std::shared_ptr<Channel> channel = grpc::CreateChannel("localhost:8080", grpc::InsecureChannelCredentials());
 
     stub = IrcService::NewStub(channel);
 
+    token = "irWeytewfOdMatAmtyepjushvoufrokicAtHa";
+
     ClientContext context;
 
-    IrcVoid stubArg;
-    IrcToken tokenResponse;
-    Status status = stub->GetToken(&context, stubArg, &tokenResponse);
-    token = tokenResponse.token();
+    std::string pass_message = "PASS letmein\r\n";
 
+    IrcReply reply;
+    IrcMessage irc_message;
+    irc_message.set_message(pass_message);
+    irc_message.set_token(token);
+    Status status = stub->SendMessage(&context, irc_message, &reply);
+    if(status.ok()){
+        std::cout << "Connect to server reply code: " << reply.message();
+    } else {
+        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+        exit(1);
+    }
 }
 
 std::string IrcClient::SendMessage(const std::string &message){
     IrcMessage request;
-    // request.message = message;
     request.set_message(message);
     request.set_token(token);
 
