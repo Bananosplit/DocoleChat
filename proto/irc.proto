@@ -9,7 +9,7 @@ package irc;
 
 service IrcService {
   rpc GetToken(IrcVoid) returns (IrcToken);
-  rpc SendMessage(IrcMessage) returns (IrcReply);
+  rpc SendMessage(IrcMessage) returns (IrcVoid);
   rpc GetMessages(IrcToken) returns (stream IrcMessage);
 }
 
@@ -22,9 +22,9 @@ message IrcMessage {
   string token = 2;
 }
 
-message IrcReply {
-  string message = 1;
-}
+//message IrcReply {
+//  string message = 1;
+//}
 
 message IrcVoid {
 

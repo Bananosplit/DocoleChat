@@ -15,7 +15,9 @@ public class IrcServiceServer : IrcService.IrcServiceBase
 
     static ChannelService channelService = new ChannelService();    
     
-    public static Dictionary<string, User> usersByToken = new Dictionary<string, User>();        
+    public static Dictionary<string, User> usersByToken = new Dictionary<string, User>();      
+
+    static string ServerName = "server";  
 
     public IrcServiceServer(ILogger<IrcServiceServer> logger)
     {
@@ -53,6 +55,7 @@ public class IrcServiceServer : IrcService.IrcServiceBase
         if (match.Success){
             if(usersByToken.ContainsKey(token)){
                 user.Nick = match.Groups[1].Value;
+                user.AddMessage(":" + ServerName + " 400 " + user.Nick + " :Welcome!\r\n");
                 return "400";
             } else {
                 return "watch";
@@ -66,8 +69,9 @@ public class IrcServiceServer : IrcService.IrcServiceBase
             string nickname = user.Nick;
             Channel channel = channelService.getChannel(channel_name);
             if(!channel.Contains(user)){
-                channel.AddMessage(":" + nickname + " JOIN" + "\r\n");
                 channel.AddUser(user);
+                user.AddMessage(":" + ServerName + " 400 :" + channel.topic);
+                channel.AddMessage(":" + nickname + " JOIN " + channel_name + "\r\n");
             }
             return "400";    
         }
@@ -78,13 +82,14 @@ public class IrcServiceServer : IrcService.IrcServiceBase
             string channel_name = match.Groups[1].Value;
             string nickname = user.Nick;
             Channel channel = channelService.getChannel(channel_name);
+            user.AddMessage(":" + ServerName + " 400");
             if(match.Groups[2].Value == ""){
                 channel.AddMessage(":" + nickname + " PART " + channel_name + "\r\n");
             } else {
                 channel.AddMessage(":" + nickname + " PART " + channel_name + " :" + match.Groups[2].Value + "\r\n");
             }
             
-            channel.AddUser(user);            
+            channel.RemoveUser(user);            
             return "400";    
         }
         
@@ -93,9 +98,10 @@ public class IrcServiceServer : IrcService.IrcServiceBase
         if (match.Success){ 
             string nickname = user.Nick;
             string channel_name = match.Groups[1].Value;
-            Channel channel = channelService.getChannel(channel_name);            
+            Channel channel = channelService.getChannel(channel_name);  
             if(channel.Contains(user)){
                 channel.AddMessage(":" + nickname + " " + match.Groups[0].Value + "\r\n");
+                user.AddMessage(":" + ServerName + " 301 :" + match.Groups[0].Value + "\r\n");
                 return "400";  
             } else {
                 return "watch";
@@ -109,6 +115,8 @@ public class IrcServiceServer : IrcService.IrcServiceBase
             return "400";  
         }
 
+        // r = new Regex(@"LIST")
+
         return "421";  
     }
 
@@ -121,11 +129,10 @@ public class IrcServiceServer : IrcService.IrcServiceBase
         
         return Task.FromResult(token);
     }
-    public override Task<IrcReply> SendMessage(IrcMessage request, ServerCallContext context)
+    public override Task<IrcVoid> SendMessage(IrcMessage request, ServerCallContext context)
     {       
-        return Task.FromResult(new IrcReply{
-            Message = ParseMessage(request.Token ,request.Message)
-        });
+        ParseMessage(request.Token ,request.Message);
+        return Task.FromResult(new IrcVoid());
     }
 
     public override async Task GetMessages(IrcToken request, IServerStreamWriter<IrcMessage> responseStream, ServerCallContext context)

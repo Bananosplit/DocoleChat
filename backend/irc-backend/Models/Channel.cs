@@ -3,18 +3,21 @@ public class Channel{
     public List<string> messages;
 
     public string name;
+    public string topic;
 
     public Channel(string name){
         this.name = name;
+        topic = "Welcome!";
         users = new List<User>();
         messages = new List<string>();
     }
 
     public void AddUser(User user){
         users.Add(user);
-        foreach(var mes in messages){
-            user.AddMessage(mes);
-        }
+    }
+
+    public void RemoveUser(User user){
+        users.Remove(user);
     }
 
     public void AddMessage(string mes){
