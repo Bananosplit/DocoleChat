@@ -17,7 +17,7 @@ using grpc::Status;
 using grpc::ClientReader;
 
 using irc::IrcMessage;
-using irc::IrcReply;
+// using irc::IrcReply;
 using irc::IrcService;
 using irc::IrcVoid;
 using irc::IrcToken;
@@ -29,7 +29,7 @@ std::string command_get(const char *line){
     return "000";
 }
 
-std::string send_cmd(const char *line){
+void send_cmd(const char *line){
 
     std::string cmd(line);
     std::string opcode = cmd.substr(0,cmd.find(" "));      
@@ -41,18 +41,20 @@ std::string send_cmd(const char *line){
 
         channel = grpc::CreateChannel("localhost:8080", grpc::InsecureChannelCredentials());
         stub = IrcService::NewStub(channel);
-        return "000";
-    }
-    if(opcode == "/settoken"){
-        token = "irWeytewfOdMatAmtyepjushvoufrokicAtHa";
-        return "000";
+        std::cout << "000" << std::endl;
+        return;
+        // return "000";
     }
 
     if(!stub){
-        return "001";
+        std::cout << "001" << std::endl;
+        return;
+        // return "001";
     }
     if(token.empty()){
-        return "002";
+        std::cout << "002" << std::endl;
+        return;
+        // return "002";
     }
 
     if(opcode == "/get"){
@@ -68,32 +70,45 @@ std::string send_cmd(const char *line){
             std::cout << reply.message();
         }
         Status status = reader->Finish();
-        return "000";
+        return;
+        // return "000";
     }
 
     if(opcode == "/setclient"){
-        return "000";
+        std::cout << "000" << std::endl;
+        return;
+        // return "000";
     }
     IrcMessage request;
     request.set_message(cmd+ "\r\n");
     request.set_token(token);
 
-    IrcReply reply;
+    IrcVoid reply;
 
     ClientContext context;
     Status status = stub->SendMessage(&context, request, &reply);
 
     if(status.ok()){
-        return reply.message();
+        // return reply.message();
+        // stub->getMess
     } else {
         std::cout << status.error_code() << ": " << status.error_message() << std::endl;
-        return "gRPC failed";
+        // return "gRPC failed";
     }
 }
 
 int main(int argc, char ** argv)
 {
-    GOOGLE_PROTOBUF_VERIFY_VERSION;   
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+    srand(std::time(0));
+
+    char buffer[50];
+    for(int i = 0; i < 20; i++){
+        buffer[i] = char('a' + rand() % ('z' - 'a'));
+    }
+    buffer[20] = '\0';
+    token = std::string(buffer);
 
     while(1)
     {
@@ -102,8 +117,7 @@ int main(int argc, char ** argv)
         if(*line) add_history(line);
         if(strcmp(line, "exit") == 0) break;
 
-        std::string res = send_cmd(line);
-        std::cout << res << std::endl;
+        send_cmd(line);
 
         free(line);
     }

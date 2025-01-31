@@ -13,7 +13,6 @@ using grpc::Status;
 using grpc::ClientReader;
 
 using irc::IrcMessage;
-using irc::IrcReply;
 using irc::IrcService;
 using irc::IrcVoid;
 using irc::IrcToken;
@@ -26,7 +25,7 @@ private:
 public:
     IrcClient();
 
-    std::string SendMessage(const std::string &message);
+    void SendMessage(const std::string &message);
     void GetMessages(std::list<std::string> &out);
 
 };

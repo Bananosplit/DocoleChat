@@ -10,7 +10,7 @@ using grpc::Status;
 using grpc::ClientReader;
 
 using irc::IrcMessage;
-using irc::IrcReply;
+using irc::IrcVoid;
 using irc::IrcService;
 
 class IrcServer final : public IrcService::Service
@@ -20,7 +20,7 @@ public:
 
     // Service interface
 public:
-    Status SendMessageW(grpc::ServerContext *context, const IrcMessage *request, IrcReply *response);
+    Status SendMessageW(grpc::ServerContext *context, const IrcMessage *request, IrcVoid *response);
 };
 
 #endif // IRCSERVER_H

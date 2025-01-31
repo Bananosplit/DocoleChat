@@ -11,35 +11,30 @@ IrcClient::IrcClient(){
 
     std::string pass_message = "PASS letmein\r\n";
 
-    IrcReply reply;
+    IrcVoid reply;
     IrcMessage irc_message;
     irc_message.set_message(pass_message);
     irc_message.set_token(token);
     Status status = stub->SendMessage(&context, irc_message, &reply);
-    if(status.ok()){
-        std::cout << "Connect to server reply code: " << reply.message();
-    } else {
+    if(!status.ok()){
         std::cout << status.error_code() << ": " << status.error_message() << std::endl;
         exit(1);
     }
 }
 
-std::string IrcClient::SendMessage(const std::string &message){
+void IrcClient::SendMessage(const std::string &message){
     IrcMessage request;
     request.set_message(message);
     request.set_token(token);
 
-    IrcReply reply;
+    IrcVoid reply;
 
     ClientContext context;
 
     Status status = stub->SendMessage(&context, request, &reply);
 
-    if(status.ok()){
-        return reply.message();
-    } else {
-        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
-        return "gRPC failed";
+    if(!status.ok()){
+        std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
     }
 }
 

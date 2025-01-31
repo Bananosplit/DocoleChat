@@ -2,7 +2,7 @@
 
 public class User{
     public string Token {get; set; } = string.Empty;
-    public string Nick {get; set; } = string.Empty;
+    public string Nick {get; set; } = "*";
 
     public List<string> messages;
     // public List<string> channels;
@@ -19,6 +19,7 @@ public class User{
 
     public void AddMessage(string mes){
         messages.Add(mes);
+        Console.Write(mes);
     }
 
     public List<string> GetMessages(){

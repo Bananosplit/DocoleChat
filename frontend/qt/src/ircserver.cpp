@@ -3,9 +3,9 @@
 
 IrcServer::IrcServer() : IrcService::Service() {}
 
-Status IrcServer::SendMessageW(grpc::ServerContext *context, const IrcMessage *request, IrcReply *response)
+Status IrcServer::SendMessageW(grpc::ServerContext *context, const IrcMessage *request, IrcVoid *response)
 {
     std::cout << request->message();
-    response->set_message("400");
+    // response->set_message("400");
     return Status::OK;
 }

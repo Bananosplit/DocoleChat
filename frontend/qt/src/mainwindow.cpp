@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     std::stringstream irc_message;
     irc_message << ":" << nick << " JOIN " << "default" << "\r\n";
-    auto ret = ircClient->SendMessage(irc_message.str());
+    ircClient->SendMessage(irc_message.str());
 
 }
 

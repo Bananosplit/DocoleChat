@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <ircclient.h>
+#include <string.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class ChatWidget; }
@@ -16,6 +17,7 @@ private:
     QTimer *message_timer;
     Ui::ChatWidget *ui;
     std::shared_ptr<IrcClient> ircClient;
+    std::string name;
 
 public:
     explicit ChatWidget(QWidget *parent = nullptr);

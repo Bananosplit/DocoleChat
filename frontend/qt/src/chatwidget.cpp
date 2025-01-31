@@ -27,19 +27,25 @@ void ChatWidget::get_messages()
     std::list<std::string> messages;
 
     ircClient->GetMessages(messages);
-    QString pattern = "[\r\n]";
-    QRegularExpression regex(pattern);
+    QRegularExpression regex("[\r\n]");
     for(auto &i : messages){
-        ui->textBrowser->append(QString::fromStdString(i).remove(regex));
+        QString mes = QString::fromStdString(i).remove(regex);
+        QRegularExpression server_regex(":server.*");
+        if(mes.contains(server_regex)){
+            ui->textBrowser->append(mes);
+        } else {
+            std::cout << mes.toStdString() << std::endl;
+            // dynamic_cast<MainWindow>(parent())->ui->stat
+        }
     }
 }
 
 void ChatWidget::return_pressed()
 {
     std::stringstream str;
-    str << "PRIVMSG default :" << ui->lineEdit->text().toStdString() << "\r\n";
+    str << "PRIVMSG " << name << " :" << ui->lineEdit->text().toStdString() << "\r\n";
 
-    auto ret = ircClient->SendMessage(str.str());
+    ircClient->SendMessage(str.str());
 
     get_messages();
 
